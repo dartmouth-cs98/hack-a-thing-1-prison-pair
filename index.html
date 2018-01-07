@@ -56,6 +56,7 @@
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		sideborder = canvas.width/20;
 		upborder = canvas.height/20;
+		playerMove();
 		playerXI = Math.floor(playerX / 10);
 		playerYI = Math.floor(playerY / 10);
 		for( var i=-sideborder; i<sideborder; i++) {
@@ -75,13 +76,18 @@
 					ctx.closePath();
 				}
 			}
+		
+		ctx.beginPath();
+		ctx.rect((sideborder)*10, (upborder)*10,10,10);
+		ctx.fillStyle = '#41f446';
+		ctx.fill();
+		ctx.closePath();
 		}
 	}
-	
-	function draw() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	function playerMove() {
 		var a = 0;
-		var b = 0;
+		var b = 0
 		if (rightPressed){
 			a = 1;
 		}
@@ -95,11 +101,15 @@
 			b = 1;
 		}
 
-		x = x + a;
-		y = y + b;
-
-   		v	
+		if (((playerXI + a) >= 0) && ((playerXI + a) <= 1000) && ((playerYI + b) >= 0) && ((playerYI + b) <= 1000)) {
+			if (map[playerXI + a][playerYI + b] == 0) {
+				playerX = playerX + a;
+				playerY = playerY + b;
+			}
+		}
 	}
+
+
 	document.addEventListener("keydown", keyDownHandler, false);
 	document.addEventListener("keyup", keyUpHandler, false);
 
