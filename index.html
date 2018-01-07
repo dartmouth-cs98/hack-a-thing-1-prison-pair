@@ -9,7 +9,7 @@
 <script>
 	var canvas = document.getElementById("Canvas");
 	var ctx = canvas.getContext("2d");
-	var x = 30;
+	var x = 60;
 	var y = 0;
 	var rightPressed = false;
 	var leftPressed = false;
@@ -30,10 +30,10 @@
 	const ROWS = 1000;
 
 	function createMap() {
-		
+
 		for(var row = 0; row < ROWS; row++) {
   			map.push([]);
-		
+
 			for(var col = 0; col < COLS; col++) {
 				map[row].push([]);
 				if((Math.floor(Math.random() * 6) + 1) == 3) {
@@ -76,7 +76,7 @@
 					ctx.closePath();
 				}
 			}
-		
+
 		ctx.beginPath();
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
 		ctx.fillStyle = '#41f446';
@@ -147,7 +147,7 @@
 	createMap();
 	pickPlayerLocation();
 	setInterval(gameLoop, 10);
-	
+
 </script>
 
 </html>
