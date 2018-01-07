@@ -29,20 +29,23 @@
 	const COLS = 1000;
 	const ROWS = 1000;
 
+	const DEATH_LIMIT = 5;
+	const BIRTH_LIMIT = 5;
+
 	function createMap() {
-		
+		var tempMap = [];
 		for(var row = 0; row < ROWS; row++) {
-  			map.push([]);
-		
+  			tempMap.push([]);
 			for(var col = 0; col < COLS; col++) {
-				map[row].push([]);
+				tempMap[row].push([]);
 				if((Math.floor(Math.random() * 6) + 1) == 3) {
-					map[row][col] = 1;
+					tempMap[row][col] = 1;
 				} else {
-					map[row][col] = 0;
+					tempMap[row][col] = 0;
 				}
 			}
 		}
+		return tempMap;
 	}
 
 	function pickPlayerLocation() {
@@ -76,7 +79,7 @@
 					ctx.closePath();
 				}
 			}
-		
+
 		ctx.beginPath();
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
 		ctx.fillStyle = '#41f446';
@@ -143,11 +146,61 @@
  	       	upPressed = false;
 	  }
 	}
+// Below functions use heavily from this website:
+// https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
+// Nothing was copy and pasted
 
-	createMap();
+	function countSurroundingBlocks(oldMap,x,y){
+		var count = 0;
+		for(var i=-1;i<2;i++){
+			for(var j=-1;j<2;j++){
+				var tempx = x + i
+				var tempy = y + j
+
+				if(!(i==0 && j==0)){
+					if (tempx < 0 || tempx > oldMap.length-1 || tempy < 0 || tempy > oldMap.length-1){
+						count++;
+					}
+					else if(oldMap[tempx][tempy] == 1){
+						count++;
+					}
+				}
+			}
+		}
+		return count;
+	}
+
+	function roomifyMap(oldMap){
+		var newMap = createMap();
+		for(var i=0; i<ROWS;i++){
+			for(var j=0; j<COLS;j++){
+				surroundCount = countSurroundingBlocks(oldMap,i,j);
+				if(oldMap[i][j]==1){
+					if(surroundCount<DEATH_LIMIT){
+						newMap[i][j] = 0;
+					}
+					else{
+						newMap[i][j] = 1;
+					}
+				}
+				else{
+					if(surroundCount>BIRTH_LIMIT){
+						newMap[i][j] = 1;
+					}
+					else{
+						newMap[i][j] = 0;
+					}
+				}
+			}
+		}
+		return newMap;
+	}
+
+	map = createMap();
+	map = roomifyMap(map);
 	pickPlayerLocation();
 	setInterval(gameLoop, 10);
-	
+
 </script>
 
 </html>
