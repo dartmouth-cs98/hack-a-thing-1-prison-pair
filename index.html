@@ -29,8 +29,9 @@
 	const COLS = 1000;
 	const ROWS = 1000;
 
-	const DEATH_LIMIT = 5;
-	const BIRTH_LIMIT = 5;
+	const DEATH_LIMIT = 4;
+	const BIRTH_LIMIT = 3;
+	const ROOMIFY_COUNT = 4;
 
 	function createMap() {
 		var tempMap = [];
@@ -38,7 +39,7 @@
   			tempMap.push([]);
 			for(var col = 0; col < COLS; col++) {
 				tempMap[row].push([]);
-				if((Math.floor(Math.random() * 6) + 1) == 3) {
+				if(Math.random() > .6) {
 					tempMap[row][col] = 1;
 				} else {
 					tempMap[row][col] = 0;
@@ -67,14 +68,14 @@
 				if( (i+playerXI < 0) || (j+playerYI < 0) || (i+playerXI >= 1000) || (j+playerYI >= 1000)) {
 					ctx.beginPath();
 					ctx.rect((i+sideborder)*10,(j+upborder)*10,10,10);
-					ctx.fillStyle = "#f442f1";
+					ctx.fillStyle = "#fffb96";
 					ctx.fill();
 					ctx.closePath();
 
 				}else if( map[(i+playerXI)][(j+playerYI)] == 1 ) {
 					ctx.beginPath();
 					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
-					ctx.fillStyle = "#FF0000";
+					ctx.fillStyle = "#b967ff";
 					ctx.fill();
 					ctx.closePath();
 				}
@@ -82,7 +83,7 @@
 
 		ctx.beginPath();
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
-		ctx.fillStyle = '#41f446';
+		ctx.fillStyle = '#fffb96';
 		ctx.fill();
 		ctx.closePath();
 		}
@@ -197,7 +198,9 @@
 	}
 
 	map = createMap();
-	map = roomifyMap(map);
+	for(var i=0; i<ROOMIFY_COUNT; i++){
+		map = roomifyMap(map);
+	}
 	pickPlayerLocation();
 	setInterval(gameLoop, 10);
 
