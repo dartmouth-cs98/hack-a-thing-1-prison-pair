@@ -1,0 +1,143 @@
+<html>
+
+<head>
+	<link rel = "stylesheet" type = "text/css" href = "style.css">
+</head>
+
+<canvas id="Canvas" width="700px" height="450px" style="border:1px solid #000000;">No canvas support</canvas>
+
+<script>
+	var canvas = document.getElementById("Canvas");
+	var ctx = canvas.getContext("2d");
+	var x = 30;
+	var y = 0;
+	var rightPressed = false;
+	var leftPressed = false;
+	var downPressed = false;
+	var upPressed = false;
+
+	var playerX = 0;
+	var playerY = 0;
+	var playerXI = 0;
+	var playerYI = 0;
+
+	var map = [];
+	const MAX_ROOM_SIZE = 15;
+	const MIN_ROOM_SIZE = 4;
+	const MAX_ROOM_DIM = 4;
+	const MIN_ROOM_DIM = 2;
+	const COLS = 1000;
+	const ROWS = 1000;
+
+	function createMap() {
+		
+		for(var row = 0; row < ROWS; row++) {
+  			map.push([]);
+		
+			for(var col = 0; col < COLS; col++) {
+				map[row].push([]);
+				if((Math.floor(Math.random() * 5) + 1) == 3) {
+					map[row][col] = 1;
+				} else {
+					map[row][col] = 0;
+				}
+			}
+		}
+	}
+
+	function pickPlayerLocation() {
+		playerX = Math.floor(Math.random() * 1000) + 1;
+		playerY = Math.floor(Math.random() * 1000) + 1;
+		var playerCoor = [playerX, playerY];
+	}
+
+	function gameLoop() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		sideborder = canvas.width/20;
+		upborder = canvas.height/20;
+		playerXI = Math.floor(playerX / 10);
+		platerYI = Math.floor(playerY / 10);
+		for( var i=-sideborder; i<sideborder; i++) {
+			for( var j=-upborder; j<upborder; j++) {
+				if( (i+playerXI < 0) || (j+playerYI < 0) || (i+playerXI > 1000) || (j+playerYI > 1000)) {
+					ctx.beginPath();
+					ctx.rect(i*10+sideborder,j*10+upborder,10,10);
+					ctx.fillStyle = "#f442f1";
+					ctx.fill();
+					ctx.closePath();
+
+				}else if( map[Math.floor(i+playerXI)][Math.floor(j+playerYI)] == 1 ) {
+					ctx.beginPath();
+					ctx.rect(i*10+sideborder, j*10+upborder, 10, 10);
+					ctx.fillStyle = "#FF0000";
+					ctx.fill();
+					ctx.closePath();
+				}
+			}
+		}
+	}
+	
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		var a = 0;
+		var b = 0;
+		if (rightPressed){
+			a = 1;
+		}
+		if (leftPressed){
+			a = -1;
+		}
+		if (upPressed){
+			b = -1;
+		}
+		if (downPressed){
+			b = 1;
+		}
+
+		x = x + a;
+		y = y + b;
+
+   		v	
+	}
+	document.addEventListener("keydown", keyDownHandler, false);
+	document.addEventListener("keyup", keyUpHandler, false);
+
+
+	function keyDownHandler(e) {
+  	  if(e.keyCode == 39) {
+  	      rightPressed = true;
+  	  }
+  	  else if(e.keyCode == 37) {
+  	      leftPressed = true;
+ 	  }
+  	  else if(e.keyCode == 40) {
+  	      downPressed = true;
+ 	  }
+  	  else if(e.keyCode == 38) {
+  	      upPressed = true;
+ 	   }
+	}
+
+	function keyUpHandler(e) {
+ 	  if(e.keyCode == 39) {
+ 	       	rightPressed = false;
+ 	  }
+	  else if(e.keyCode == 37) {
+ 	 	leftPressed = false;
+	  }
+	  else if(e.keyCode == 40) {
+ 	   	downPressed = false;
+	  }
+	  else if(e.keyCode == 38) {
+ 	       	upPressed = false;
+	  }
+	}
+
+	createMap();
+	pickPlayerLocation();
+	setInterval(gameLoop, 10);
+	
+</script>
+
+</html>
