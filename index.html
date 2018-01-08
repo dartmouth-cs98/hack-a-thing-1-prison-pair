@@ -30,7 +30,7 @@
 	const BIRTH_LIMIT = 3;
 	const ROOMIFY_COUNT = 4;
 
-	var mySound;
+	var mySound = new sound("button-16.mp3");
 	var myMusic;
 	var playx = 0;
 	var playy = 0;
@@ -84,18 +84,20 @@
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
 		ctx.fillStyle = '#fffb96';
 		ctx.fill();
-		ctx.fillStyle = "grey";
+
+
 		ctx.beginPath();
 		ctx.arc(200, 200, 100, 0, 2 * Math.PI);
-		ctx.rect(400, 0, -400, 400);
+		ctx.rect(800, 0, -400, 400);
+		ctx.fillStyle = "grey";
 		ctx.fill();
+
 		ctx.closePath();
 		}
 	}
 	function playerMove() {
 		var a = 0;
 		var b = 0
-		mySound = new sound("button-16.mp3");
 		if (rightPressed){
 			a = 1;
 		}
