@@ -29,6 +29,7 @@
 	const DEATH_LIMIT = 4;
 	const BIRTH_LIMIT = 3;
 	const ROOMIFY_COUNT = 4;
+
 	function createMap() {
 		var tempMap = [];
 		for(var row = 0; row < ROWS; row++) {
@@ -72,6 +73,7 @@
 					ctx.closePath();
 				}
 			}
+
 		ctx.beginPath();
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
 		ctx.fillStyle = '#fffb96';
@@ -134,12 +136,14 @@
 // Below functions use heavily from this website:
 // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
 // Nothing was copy and pasted
+
 	function countSurroundingBlocks(oldMap,x,y){
 		var count = 0;
 		for(var i=-1;i<2;i++){
 			for(var j=-1;j<2;j++){
 				var tempx = x + i
 				var tempy = y + j
+
 				if(!(i==0 && j==0)){
 					if (tempx < 0 || tempx > oldMap.length-1 || tempy < 0 || tempy > oldMap.length-1){
 						count++;
@@ -177,6 +181,7 @@
 		}
 		return newMap;
 	}
+
 	map = createMap();
 	for(var i=0; i<ROOMIFY_COUNT; i++){
 		map = roomifyMap(map);
