@@ -84,6 +84,11 @@
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
 		ctx.fillStyle = '#fffb96';
 		ctx.fill();
+		ctx.fillStyle = "grey";
+		ctx.beginPath();
+		ctx.arc(200, 200, 100, 0, 2 * Math.PI);
+		ctx.rect(400, 0, -400, 400);
+		ctx.fill();
 		ctx.closePath();
 		}
 	}
