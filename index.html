@@ -34,6 +34,7 @@
 	const ROOMIFY_COUNT = 4;
 
 	var mySound;
+	var myMusic;
 	var playx = 0;
 	var playy = 0;
 	var hasPlayed = false;
@@ -215,6 +216,8 @@
 
 	// https://www.w3schools.com/graphics/game_sound.asp
 	// Used sound from: https://www.soundjay.com/
+	//									http://incompetech.com/music/royalty-free/index.html?keywords=8bit+Dungeon+Boss&Search=Search
+
 	function sound(src) {
     this.sound = document.createElement("audio");
     this.sound.src = src;
@@ -229,12 +232,17 @@
         this.sound.pause();
     }
 }
+	function playBackgroundMusic(){
+		myMusic = new sound("8bit.mp3")
+		myMusic.play();
+	}
 
 	map = createMap();
 	for(var i=0; i<ROOMIFY_COUNT; i++){
 		map = roomifyMap(map);
 	}
 	pickPlayerLocation();
+	playBackgroundMusic();
 	setInterval(gameLoop, 10);
 
 </script>
