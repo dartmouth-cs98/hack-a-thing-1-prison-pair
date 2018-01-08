@@ -30,7 +30,7 @@
 	const BIRTH_LIMIT = 3;
 	const ROOMIFY_COUNT = 4;
 
-	var mySound;
+	var mySound = new sound("button-16.mp3");
 	var myMusic;
 	var playx = 0;
 	var playy = 0;
@@ -57,12 +57,12 @@
 		var playerCoor = [playerX, playerY];
 	}
 	function gameLoop() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		sideborder = canvas.width/20;
 		upborder = canvas.height/20;
 		playerMove();
 		playerXI = Math.floor(playerX / 10);
 		playerYI = Math.floor(playerY / 10);
+
 		for( var i=-sideborder; i<sideborder; i++) {
 			for( var j=-upborder; j<upborder; j++) {
 				if( (i+playerXI < 0) || (j+playerYI < 0) || (i+playerXI >= 1000) || (j+playerYI >= 1000)) {
@@ -71,26 +71,53 @@
 					ctx.fillStyle = "#fffb96";
 					ctx.fill();
 					ctx.closePath();
-				}else if( map[(i+playerXI)][(j+playerYI)] == 1 ) {
+				}
+				else if( map[(i+playerXI)][(j+playerYI)] == 1 ) {
 					ctx.beginPath();
 					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
 					ctx.fillStyle = "#000000";
 					ctx.fill();
 					ctx.closePath();
 				}
+				else if( map[(i+playerXI)][(j+playerYI)] == 0.5) {
+					ctx.beginPath();
+					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
+					ctx.fillStyle = "#333333";
+					ctx.fill();
+					ctx.closePath();
+				}
 			}
+		}
 
 		ctx.beginPath();
 		ctx.rect((sideborder)*10, (upborder)*10,10,10);
 		ctx.fillStyle = '#fffb96';
 		ctx.fill();
 		ctx.closePath();
-		}
+
+		// Create a canvas that we will use as a mask
+		var maskCanvas = document.createElement('canvas');
+		// Ensure same dimensions
+		maskCanvas.width = canvas.width;
+		maskCanvas.height = canvas.height;
+		var maskCtx = maskCanvas.getContext('2d');
+
+		// This color is the one of the filled shape
+		maskCtx.fillStyle = "black";
+		// Fill the mask
+		maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+		// Set xor operation
+		maskCtx.globalCompositeOperation = 'xor';
+		// Draw the shape you want to take out
+		maskCtx.arc(30, 30, 10, 0, 2 * Math.PI);
+		maskCtx.fill();
+
+		// Draw mask on the image, and done !
+		ctx.drawImage(maskCanvas, 0, 0);
 	}
 	function playerMove() {
 		var a = 0;
 		var b = 0
-		mySound = new sound("button-16.mp3");
 		if (rightPressed){
 			a = 1;
 		}
@@ -150,9 +177,9 @@
  	       	upPressed = false;
 	  }
 	}
-// Below functions use heavily from this website:
+
+// Below functions from this website:
 // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
-// Nothing was copy and pasted
 
 	function countSurroundingBlocks(oldMap,x,y){
 		var count = 0;
@@ -165,7 +192,7 @@
 					if (tempx < 0 || tempx > oldMap.length-1 || tempy < 0 || tempy > oldMap.length-1){
 						count++;
 					}
-					else if(oldMap[tempx][tempy] == 1){
+					else if(oldMap[tempx][tempy] == 1 || oldMap[tempx][tempy] == 0.5){
 						count++;
 					}
 				}
@@ -173,6 +200,7 @@
 		}
 		return count;
 	}
+
 	function roomifyMap(oldMap){
 		var newMap = createMap();
 		for(var i=0; i<ROWS;i++){
@@ -199,9 +227,26 @@
 		return newMap;
 	}
 
+	function wallifyMap(oldMap){
+		var newMap = createMap();
+		for(i=0; i<oldMap.length ; i++){
+			for(j=0; j<oldMap[0].length; j++){
+				var neighborCount = countSurroundingBlocks(oldMap,i,j)
+				if(neighborCount<9){
+					newMap[i][j] = 0.5
+				}
+				else{
+					newMap[i][j] = oldMap[i][j];
+				}
+			}
+		}
+		newMap.toString();
+		return newMap;
+	}
 	// https://www.w3schools.com/graphics/game_sound.asp
 	// Used sound from: https://www.soundjay.com/
 	//									http://incompetech.com/music/royalty-free/index.html?keywords=8bit+Dungeon+Boss&Search=Search
+
 
 	function sound(src) {
     this.sound = document.createElement("audio");
@@ -222,13 +267,17 @@
 		myMusic.play();
 	}
 
+///////// MAIN SCRIPT ///////////////////////////////
 	map = createMap();
 	for(var i=0; i<ROOMIFY_COUNT; i++){
 		map = roomifyMap(map);
 	}
+	map = wallifyMap(map);
 	pickPlayerLocation();
 	playBackgroundMusic();
 	setInterval(gameLoop, 10);
+/////////////////////////////////////////////////////
+
 </script>
 
 </html>
