@@ -1,5 +1,5 @@
 canvas {
-	background-color: white;
+	background-color: #01cdfe;
 	display: block;
 	position: relative;
 	margin: auto;
@@ -7,5 +7,5 @@ canvas {
 }
 
 body {
-	background-color: lightgrey;
+	background-color: #b967ff;
 }
