@@ -1,14 +1,33 @@
 <html>
 
 <head>
-	<link rel = "stylesheet" type = "text/css" href = "style.css">
-</head>
 
-<canvas id="Canvas" width="700px" height="500px" style="border:1px solid #000000;">No canvas support</canvas>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+
+	<link id = "TweetsID" href = "Tweets.txt">
+	</link>
+
+	<link rel = "stylesheet" type = "text/css" href = "style.css">
+	</link>
+
+</head>
+<div id="wrapper" style="width:100%; text-align:center">
+	<img src="title.png" alt="Jaden Crawler" align="middle"/>
+</div>
+<div id="container">
+	<p id = "howMany" display = "block"></p>
+	<canvas id="Canvas" width="700px" height="500px" style="border:1px solid #000000;">No canvas support</canvas>
+	<canvas id="Mini" width="200" height="200">No canvas support</canvas>
+</div>
+<p id = "typer"></p>
 
 <script>
 	var canvas = document.getElementById("Canvas");
 	var ctx = canvas.getContext("2d");
+	var mini = document.getElementById("Mini");
+	var mtx = mini.getContext("2d");
+
 	var x = 30;
 	var y = 0;
 	var rightPressed = false;
@@ -20,6 +39,7 @@
 	var playerXI = 0;
 	var playerYI = 0;
 	var map = [];
+	var w = 0;
 	const MAX_ROOM_SIZE = 15;
 	const MIN_ROOM_SIZE = 4;
 	const MAX_ROOM_DIM = 4;
@@ -28,13 +48,21 @@
 	const ROWS = 1000;
 	const DEATH_LIMIT = 4;
 	const BIRTH_LIMIT = 3;
-	const ROOMIFY_COUNT = 4;
+	const ROOMIFY_COUNT = 6;
+	var tweet = "01/05/2013 - How Can Mirrors Be Real If Our Eyes Aren't Real?";
+	var apertureWidth = 0.15;
+	var apertureHeight = 0.15;
 
+	var myMusic = new sound("8bit.mp3");
 	var mySound = new sound("button-16.mp3");
-	var myMusic;
+	var myWoah = new sound("woah.mp3");
+
 	var playx = 0;
 	var playy = 0;
 	var hasPlayed = false;
+
+	var black = "#000000";
+	var red = "#FF0000";
 
 	function createMap() {
 		var tempMap = [];
@@ -42,7 +70,7 @@
   			tempMap.push([]);
 			for(var col = 0; col < COLS; col++) {
 				tempMap[row].push([]);
-				if(Math.random() > .6) {
+				if(Math.random() > .625) {
 					tempMap[row][col] = 1;
 				} else {
 					tempMap[row][col] = 0;
@@ -51,15 +79,20 @@
 		}
 		return tempMap;
 	}
+
 	function pickPlayerLocation() {
-		playerX = Math.floor((Math.random() * 10000)) + 1;
-		playerY = Math.floor((Math.random() * 10000)) + 1;
-		var playerCoor = [playerX, playerY];
+			playerX = Math.floor((Math.random() * 10000)) + 1;
+			playerY = Math.floor((Math.random() * 10000)) + 1;
+			var playerCoor = [playerX, playerY];
 	}
+
 	function gameLoop() {
+		ctx.clearRect(0,0,canvas.width,canvas.height);
 		sideborder = canvas.width/20;
 		upborder = canvas.height/20;
+
 		playerMove();
+
 		playerXI = Math.floor(playerX / 10);
 		playerYI = Math.floor(playerY / 10);
 
@@ -68,14 +101,14 @@
 				if( (i+playerXI < 0) || (j+playerYI < 0) || (i+playerXI >= 1000) || (j+playerYI >= 1000)) {
 					ctx.beginPath();
 					ctx.rect((i+sideborder)*10,(j+upborder)*10,10,10);
-					ctx.fillStyle = "#fffb96";
+					ctx.fillStyle = black;
 					ctx.fill();
 					ctx.closePath();
 				}
 				else if( map[(i+playerXI)][(j+playerYI)] == 1 ) {
 					ctx.beginPath();
 					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
-					ctx.fillStyle = "#000000";
+					ctx.fillStyle = black;
 					ctx.fill();
 					ctx.closePath();
 				}
@@ -83,6 +116,20 @@
 					ctx.beginPath();
 					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
 					ctx.fillStyle = "#333333";
+					ctx.fill();
+					ctx.closePath();
+				}
+				else if( map[(i+playerXI)][(j+playerYI)] == 2 ) {
+					ctx.beginPath();
+					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
+					ctx.fillStyle = "#4286f4";
+					ctx.fill();
+					ctx.closePath();
+				}
+				else if( map[(i+playerXI)][(j+playerYI)] == 3) {
+					ctx.beginPath();
+					ctx.rect((i+sideborder)*10, (j+upborder)*10, 10, 10);
+					ctx.fillStyle = "#e542f4";
 					ctx.fill();
 					ctx.closePath();
 				}
@@ -94,35 +141,81 @@
 		ctx.fillStyle = '#fffb96';
 		ctx.fill();
 
+		fillMinimap(Math.floor(playerXI/5),Math.floor(playerYI/5));
 
+		drawAperture();
+	}
+
+	countJadens = 1;
+	function triggerJaden() {
+		if (document.getElementById("typer").innerHTML.length == tweet.length){
+			document.getElementById("typer").innerHTML = "";
+			w = 0;
+			document.getElementById("typer").style.border = "none";
+		}
+		var r = 0;
+		var s = 0;
+		if (rightPressed){
+			r = 1;
+		}
+		if (leftPressed){
+			r = -1;
+		}
+		if (upPressed){
+			s = -1;
+		}
+		if (downPressed){
+			s = 1;
+		}
+		if (((playerXI + r) >= 0) && ((playerXI + r) <= 1000) && ((playerYI + s) >= 0) && ((playerYI + s) <= 1000)) {
+			if (map[playerXI + r][playerYI + s] == 2) {
+
+				if (w == 0){
+					map[playerXI + r][playerYI + s] = 3;
+					document.getElementById("typer").style.border = "solid";
+					document.getElementById("howMany").innerHTML = countJadens;
+					countJadens = countJadens + 1;
+					myWoah.play();
+					apertureWidth = apertureWidth + 0.05;
+					apertureHeight = apertureHeight + 0.05;
+					getRandomTweet();
+					typeOutTweet();
+				}
+			}
+		}
+	}
+
+//From https://stackoverflow.com/questions/13618844/polygon-with-a-hole-in-the-middle-with-html5s-canvas
+	function drawAperture() {
 		ctx.beginPath();
-		ctx.arc(200, 200, 100, 0, 2 * Math.PI);
-		ctx.rect(800, 0, -400, 400);
-		ctx.fillStyle = "grey";
-		ctx.fill();
+		screenWidth = canvas.width * apertureWidth;
+		screenHeight = canvas.height * apertureHeight;
 
+		equationX = ((canvas.width - screenWidth) / 2) +5;
+		equationY = ((canvas.height - screenHeight)/2) + 5;
+
+		ctx.moveTo(0, 0);
+		ctx.lineTo(canvas.width, 0);
+		ctx.lineTo(canvas.width, canvas.height);
+		ctx.lineTo(0, canvas.height);
+		ctx.lineTo(0, 0);
 		ctx.closePath();
 
-		// Create a canvas that we will use as a mask
-		var maskCanvas = document.createElement('canvas');
-		// Ensure same dimensions
-		maskCanvas.width = canvas.width;
-		maskCanvas.height = canvas.height;
-		var maskCtx = maskCanvas.getContext('2d');
+		//polygon2 --- usually hole,must be counter-clockwise
+		ctx.moveTo(equationX, equationY);
+		ctx.lineTo(equationX,equationY+screenHeight);
+		ctx.lineTo(equationX + screenWidth, equationY + screenHeight);
+		ctx.lineTo(equationX + screenWidth, equationY);
+		ctx.lineTo(equationX, equationY);
+		ctx.closePath();
 
-		// This color is the one of the filled shape
-		maskCtx.fillStyle = "black";
-		// Fill the mask
-		maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-		// Set xor operation
-		maskCtx.globalCompositeOperation = 'xor';
-		// Draw the shape you want to take out
-		maskCtx.arc(30, 30, 10, 0, 2 * Math.PI);
-		maskCtx.fill();
-
-		// Draw mask on the image, and done !
-		ctx.drawImage(maskCanvas, 0, 0);
+		ctx.fillStyle = black;
+		ctx.strokeStyle = "rgba(0.5,0.5,0.5,0.5)";
+		ctx.lineWidth = 1;
+		ctx.fill();
+		ctx.stroke();
 	}
+
 	function playerMove() {
 		var a = 0;
 		var b = 0
@@ -142,12 +235,8 @@
 			if (map[playerXI + a][playerYI + b] == 0) {
 				playerX = playerX + a;
 				playerY = playerY + b;
-			}
-			else{
-				if(playerX == playx && playerY == playy){
-					//Do nothing
-				}
-				else{
+			} else {
+				if(!(playerX == playx && playerY == playy)){
 					playx = playerX;
 					playy = playerY;
 					mySound.play();
@@ -155,8 +244,7 @@
 			}
 		}
 	}
-	document.addEventListener("keydown", keyDownHandler, false);
-	document.addEventListener("keyup", keyUpHandler, false);
+
 	function keyDownHandler(e) {
   	  if(e.keyCode == 39) {
   	      rightPressed = true;
@@ -186,7 +274,7 @@
 	  }
 	}
 
-// Below functions from this website:
+// Below two functions from this website:
 // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
 
 	function countSurroundingBlocks(oldMap,x,y){
@@ -240,7 +328,7 @@
 		for(i=0; i<oldMap.length ; i++){
 			for(j=0; j<oldMap[0].length; j++){
 				var neighborCount = countSurroundingBlocks(oldMap,i,j)
-				if(neighborCount<9){
+				if(neighborCount<8 && oldMap[i][j] == 1){
 					newMap[i][j] = 0.5
 				}
 				else{
@@ -251,10 +339,97 @@
 		newMap.toString();
 		return newMap;
 	}
+
+	function enemyifyMap(oldMap){
+		var newMap = createMap();
+		for(i=0; i<oldMap.length ; i++){
+			for(j=0; j<oldMap[0].length; j++){
+				if( oldMap[i][j] == 0 ){
+					if( (Math.floor(Math.random() * 450) + 1) == 350  ) {
+						newMap[i][j] = 2
+					}
+					else{
+						newMap[i][j] = oldMap[i][j];
+					}
+				}
+				else{
+						newMap[i][j] = oldMap[i][j];
+				}
+			}
+		}
+		return newMap;
+	}
+
+	function openupifyMapHelper(oldMap,x,y){
+		var count = 0;
+		for(var i=-1;i<2;i++){
+			for(var j=-1;j<2;j++){
+				var tempx = x + i
+				var tempy = y + j
+
+				if(!(i==0 && j==0)){
+					if (tempx < 0 || tempx > oldMap.length-1 || tempy < 0 || tempy > oldMap.length-1){
+						return true;
+					}
+					else if(oldMap[tempx][tempy] == 1){
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	function openupifyMap(oldMap){
+		var newMap = createMap();
+		for(i=0; i<oldMap.length ; i++){
+			for(j=0; j<oldMap[0].length; j++){
+				if(oldMap[i][j] == .5){
+					if(openupifyMapHelper(oldMap, i, j)){
+						newMap[i][j] = oldMap[i][j];
+					} else {
+						newMap[i][j] = 0;
+					}
+				} else {
+					newMap[i][j] = oldMap[i][j];
+				}
+			}
+		}
+		return newMap;
+	}
+
+	function getRandomTweet() {
+		$(document).ready(function(){
+		  $.ajax({
+		    url: "Tweets.txt", // path to file
+		    dataType: 'text', // type of file (text, json, xml, etc)
+		    success: function(data) { // callback for successful completion
+					data = data.split('\n');
+					var i = 0;
+					var get = Math.floor(Math.random() * data.length) + 1
+					for(var i = 0;i < data.length;i++){
+						if (i == get) {
+							tweet = data[i];
+						}
+					}
+		    },
+		    error: function() { // callback if there's an error
+		      alert("error");
+		    }
+		  });
+		});
+	}
+
+	function typeOutTweet(){
+		if (w < tweet.length) {
+			document.getElementById("typer").innerHTML += tweet.charAt(w);
+			w++;
+			setTimeout(typeOutTweet, 50);
+		}
+	}
+
 	// https://www.w3schools.com/graphics/game_sound.asp
 	// Used sound from: https://www.soundjay.com/
 	//									http://incompetech.com/music/royalty-free/index.html?keywords=8bit+Dungeon+Boss&Search=Search
-
 
 	function sound(src) {
     this.sound = document.createElement("audio");
@@ -271,21 +446,140 @@
     }
 }
 	function playBackgroundMusic(){
-		myMusic = new sound("8bit.mp3")
 		myMusic.play();
 	}
+
+	function miniMapHelper(map,x,y){
+		var count= 0;
+		for(var i=0;i<5;i++){
+			for(var j=0;j<5;j++){
+				if(!(i==0 && j==0)){
+					if(map[i+x][j+y] != 0){
+						count = count + 1;
+					}
+				}
+			}
+		}
+		return count/25;
+	}
+
+// Want to make better
+	function createMiniMap(oldMap){
+		newMap = createMap(200,200);
+		for(var i=0;i<200;i++){
+			for(var j=0;j<200;j++){
+				var totalCount = miniMapHelper(oldMap,i*5,j*5)
+				if(totalCount<.1){
+					newMap[i][j] = 0
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = black;
+					mtx.fill();
+					mtx.closePath();
+				}
+				else if(totalCount<.2){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#111111";
+					mtx.fill();
+					mtx.closePath();
+				}
+				else if(totalCount<.3){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#222222";
+					mtx.fill();
+					mtx.closePath();
+				}else if(totalCount<.4){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#333333";
+					mtx.fill();
+					mtx.closePath();
+				}else if(totalCount<.5){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#444444";
+					mtx.fill();
+					mtx.closePath();
+				}else if(totalCount<.6){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#555555";
+					mtx.fill();
+					mtx.closePath();
+				}else if(totalCount<.7){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#666666";
+					mtx.fill();
+					mtx.closePath();
+				}else if(totalCount<.8){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#777777";
+					mtx.fill();
+					mtx.closePath();
+				}
+				else if(totalCount<.9){
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#888888";
+					mtx.fill();
+					mtx.closePath();
+				}else{
+					newMap[i][j] = 1;
+					mtx.beginPath();
+					mtx.rect(i,j,1,1);
+					mtx.fillStyle = "#999999";
+					mtx.fill();
+					mtx.closePath();
+				}
+			}
+		}
+	}
+
+	function fillMinimap(x,y){
+		mtx.beginPath();
+		mtx.rect(x,y,1,1);
+		mtx.fillStyle = red;
+		mtx.fill();
+		mtx.closePath();
+	}
+
+	document.addEventListener("keydown", keyDownHandler, false);
+	document.addEventListener("keydown", triggerJaden, false);
+	document.addEventListener("keyup", keyUpHandler, false);
 
 ///////// MAIN SCRIPT ///////////////////////////////
 	map = createMap();
 	for(var i=0; i<ROOMIFY_COUNT; i++){
 		map = roomifyMap(map);
 	}
+
 	map = wallifyMap(map);
-	pickPlayerLocation();
+
+	map = enemyifyMap(map);
+	map = openupifyMap(map);
+	createMiniMap(map);
+	var flag = false;
+	while (flag == false){
+		pickPlayerLocation();
+		if (map[Math.floor(playerX / 10)][playerYI = Math.floor(playerY / 10)] == 0) {
+			flag = true;
+		}
+	}
 	playBackgroundMusic();
 	setInterval(gameLoop, 10);
 /////////////////////////////////////////////////////
-
 </script>
 
 </html>
