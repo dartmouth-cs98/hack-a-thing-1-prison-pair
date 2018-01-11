@@ -1,11 +1,49 @@
-canvas {
+#Canvas {
 	background-color: #555555;
-	display: block;
-	position: relative;
-	margin: auto;
 	top: 30px;
+	margin-left: 10%;
 }
 
+#Mini{
+	border: 2px solid #8B0000;
+	background-color: #555555;
+	position: absolute;
+	bottom: 115px;
+	margin-left: 15px;
+}
+
+#container{
+	position:relative;
+}
+
+#howMany {
+	font-weight: 900;
+	font-family: Courier;
+	font-size: 25;
+	line-height: 1.8;
+	position: absolute;
+	color: darkred;
+	height: 75px;
+	width: 75px;
+	right: 239px;
+	bottom: 300px;
+	border-color: darkred;
+	text-align: center;
+}
+
+#typer {
+	font-weight: 900;
+	font-family: Courier;
+	line-height: 1.8;
+	position: absolute;
+	color: darkred;
+	height: 75px;
+	width: 700px;
+	right: 393px;
+	border-color: darkred;
+	text-align: center;
+
+}
 body {
 	background-color: #000000;
 }
